@@ -6,20 +6,37 @@
 
 use cosmix::println;
 use core::panic::PanicInfo;
-use cosmix::print;
+use x86_64::registers::control::Cr3;
+use bootloader::{BootInfo, entry_point};
+use x86_64::structures::paging::PageTable;
+use cosmix::memory::translate_addr;
+use cosmix::memory;
+use x86_64::{structures::paging::Translate, VirtAddr};
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(kernel_main);
+
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Loading Cosmix....{}", "!");
 
     cosmix::init();
 
-    fn stack_overflow() {
-        stack_overflow(); // for each recursion, the return address is pushed
+   let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    // new: initialize a mapper
+    let mapper = unsafe { memory::init(phys_mem_offset) };
+
+    let addresses = [
+    	0xb8000,
+    	0x201008,
+    	0x0100_0020_1a10,
+    	boot_info.physical_memory_offset,
+    ]; // same as before
+
+    for &address in &addresses {
+        let virt = VirtAddr::new(address);
+        // new: use the `mapper.translate_addr` method
+        let phys = mapper.translate_addr(virt);
+        println!("{:?} -> {:?}", virt, phys);
     }
-		
-    // uncomment line below to trigger a stack overflow
-    // stack_overflow();
 
     #[cfg(test)]
     test_main();
