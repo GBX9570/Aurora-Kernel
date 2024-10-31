@@ -15,14 +15,14 @@ As of the terms of GPL 3.0, we cannot require you give credit in any use of this
 
 # What can it do?
 The Aurora Kernel has support for:
-Hardware Interrupts (eg, keyboard inputs)
-Displaying text to the screen
-Basic Functions of the Rust Standard Library (eg, `println!`)
-Serial output when running on Qemu (using `cargo test`)
-Exception handling (Eg, CPU Exceptions, Double Faults)
-Paging
-Heap Collection/Allocation
-Async and Await
+* Hardware Interrupts (eg, keyboard inputs)
+* Displaying text to the screen
+* Basic Functions of the Rust Standard Library (eg, `println!`)
+* Serial output when running on Qemu (using `cargo test`)
+* Exception handling (Eg, CPU Exceptions, Double Faults)
+* Paging
+* Heap Collection/Allocation
+* Async and Await
 
 # What comes with it?
 Literally nothing - just the kernel, no terminal or anything - that is all yours to make.
