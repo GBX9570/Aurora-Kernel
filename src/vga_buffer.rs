@@ -67,7 +67,7 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        color_code: ColorCode::new(Color::White, Color::Black),
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     });
 }
@@ -128,15 +128,42 @@ impl Writer {
     }
 }
 
+/// Like the `print!` macro in the standard library, but prints to the VGA text buffer.
 #[macro_export]
 macro_rules! print {
     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
 }
 
+/// Like the `println!` macro in the standard library, but prints to the VGA text buffer.
 #[macro_export]
 macro_rules! println {
     () => ($crate::print!("\n"));
-    ($($arg:tt)*) => ($crate::print!("{\n}", format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+
+#[macro_export]
+macro_rules! warn {
+    () => ($crate::warn!("\n"));
+    ($($arg:tt)*) => ($crate::print!("[WARNING] {\n}", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! error {
+    () => ($crate::error!("\n"));
+    ($($arg:tt)*) => ($crate::print!("[ERROR] {\n}", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! info {
+    () => ($crate::info!("\n"));
+    ($($arg:tt)*) => ($crate::print!("[INFO] {\n}", format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! success {
+    () => ($crate::success!("\n"));
+    ($($arg:tt)*) => ($crate::print!("[success] {\n}", format_args!($($arg)*)));
 }
 
 #[doc(hidden)]

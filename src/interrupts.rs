@@ -8,6 +8,7 @@ use x86_64::structures::idt::PageFaultErrorCode;
 use crate::hlt_loop;
 use lazy_static::lazy_static;
 use x86_64::instructions::port::Port;
+use alloc::string::String;
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
@@ -37,8 +38,6 @@ extern "x86-interrupt" fn page_fault_handler(
 extern "x86-interrupt" fn timer_interrupt_handler(
 	_stack_frame: InterruptStackFrame)
 {
-	print!(".");
-
 	unsafe{
 		PICS.lock()
 			.notify_end_of_interrupt(InterruptIndex::Timer.as_u8());		
@@ -62,8 +61,8 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
 
     let mut keyboard = KEYBOARD.lock();
     let mut port = Port::new(0x60);
+
     let scancode: u8 = unsafe { port.read() };
-    crate::task::keyboard::add_scancode(scancode);
     if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
         if let Some(key) = keyboard.process_keyevent(key_event) {
             match key {
@@ -78,7 +77,6 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(
             .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
     }
 }
-
 
 pub fn init_idt() {
     IDT.load();

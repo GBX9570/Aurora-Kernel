@@ -3,7 +3,6 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(cosmix::test_runner)]
 #![reexport_test_harness_main = "test_main"]
-
 use cosmix::println;
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
@@ -12,7 +11,11 @@ use cosmix::allocator;
 use cosmix::memory::{self, BootInfoFrameAllocator};
 use x86_64::VirtAddr;
 use cosmix::task::{Task, simple_executor::SimpleExecutor};
-use cosmix::task::keyboard;
+use cosmix::error;
+use cosmix::warn;
+use cosmix::info;
+mod term;
+use x86_64::instructions::port::Port;
 
 entry_point!(kernel_main);
 
@@ -27,25 +30,15 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
 	 allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
 
-	let mut executor = SimpleExecutor::new();
-    executor.spawn(Task::new(example_task()));
-    executor.spawn(Task::new(keyboard::print_keypresses()));
-    executor.run();
+	info!("Cosmix Has Loaded Successfully!\n");
+    info!("System Tooltips appear to be functioning. (or not if you can't see this lmao)\n");
+    warn!("This project is provided with ABSOLUTELY NO WARRANTY. If something breaks, YOU'RE responsible in the eyes of the law - by using this software you agree to this and the GPL 3.0 license agreement.\n");
+    println!("Blame yourself, because Cosmix is stable from when you use it for the first time.\n");
+    error!("The Terminal Shell could not be loaded, reason: does not exist right now sorry guys\n");
 
     #[cfg(test)]
     test_main();
-
-    println!("It did not crash!\n");
     cosmix::hlt_loop();
-}
-
-async fn async_number () -> u32 {
-	42
-}
-
-async fn example_task() {
-	let number = async_number().await;
-	println!("async number: {}\n", number);
 }
 
 /// This function is called on panic.
